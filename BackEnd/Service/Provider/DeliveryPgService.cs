@@ -17,6 +17,7 @@ namespace BackEnd.Service.Provider
             _context = context;
             _mapper = mapper;
         }
+        //Delete
         public async Task<ApiResponse<DeliveryDTO>> DeleteDelivery(int id)
         {
             var delivery = _context.Deliveries.FirstOrDefault(x => x.DeliveryId == id);
@@ -54,7 +55,7 @@ namespace BackEnd.Service.Provider
 
             }
         }
-
+        //Get
         public async Task<ApiResponse<List<DeliveryDTO>>> GetDeliveries()
         {
             var deliveries = _context.Deliveries.Select(d => new DeliveryDTO
@@ -108,6 +109,7 @@ namespace BackEnd.Service.Provider
 
             }
         }
+        //Get{id}
 
         public async Task<ApiResponse<DeliveryDTO>> GetDelivery(int id)
         {
@@ -159,7 +161,7 @@ namespace BackEnd.Service.Provider
                 };
             }
         }
-
+        //Post
         public async Task<ApiResponse<DeliveryDTO>> PostDelivery(DeliveryDTO deliveryDto)
         {
             try {
@@ -171,8 +173,23 @@ namespace BackEnd.Service.Provider
                         Message = "Invalid Request, Null Body!"
                     };
                 }
-                var delivery = _mapper.Map<Delivery>(deliveryDto);
-                
+                var pickupLocation = new Point(deliveryDto.PickupLongitude, deliveryDto.PickupLatitude) { SRID = 4326 };
+                var deliveryLocation = new Point(deliveryDto.DeliveryLongitude, deliveryDto.DeliveryLatitude) { SRID = 4326 };
+
+                var delivery = new Delivery
+                {
+                    OrderId = deliveryDto.OrderId,
+                    PickupLocation = pickupLocation,
+                    DeliveryLocation = deliveryLocation,
+                    DeliveryDistance = deliveryDto.DeliveryDistance,
+                    ScheduledTime = deliveryDto.ScheduledTime,
+                    OrderPlaced = deliveryDto.OrderPlaced,
+                    CustomerId = deliveryDto.CustomerId,
+                    IsOrderFulfilled = deliveryDto.IsOrderFulfilled,
+                    DeliveryStatus = deliveryDto.DeliveryStatus,
+                    Fare = deliveryDto.Fare
+                };
+                               
                  _context.Deliveries.Add(delivery);
                 await _context.SaveChangesAsync();
                 return new ApiResponse<DeliveryDTO>
@@ -189,7 +206,7 @@ namespace BackEnd.Service.Provider
                 };
             } 
         }
-
+        //Put
         public async Task<ApiResponse<DeliveryDTO>> PutDelivery(int id, DeliveryDTO deliveryDto)
         {
             if (id != deliveryDto.DeliveryId)
