@@ -10,6 +10,7 @@ namespace BackEnd.Data
 
         public DeliveryDbContext(DbContextOptions<DeliveryDbContext> options) : base(options) 
         {
+            
         }
 
 

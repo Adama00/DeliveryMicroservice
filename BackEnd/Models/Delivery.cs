@@ -7,8 +7,8 @@ namespace BackEnd.Models
     {
         public int DeliveryId { get; set; }
         public int OrderId { get; set; }
-        public Point PickupLocation { get; set; } 
-        public Point DeliveryLocation { get; set; } 
+        public Point PickupLocation { get; set; } = new Point(5.00, -0.18);
+        public Point DeliveryLocation { get; set; } = new Point(5.00, -0.18);
         public double DeliveryDistance {  get; set; }
         public DateTime ScheduledTime { get; set; }
         public DateTime OrderPlaced { get; set; }
