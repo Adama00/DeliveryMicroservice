@@ -4,6 +4,7 @@ using BackEnd.Data;
 using BackEnd.Models;
 using NetTopologySuite.Geometries;
 using BackEnd.DTOs;
+using BackEnd.RabbitMQ;
 
 namespace DeliveryService.Controllers
 {
@@ -12,10 +13,13 @@ namespace DeliveryService.Controllers
     public class DeliveriesController : ControllerBase
     {
         private readonly DeliveryDbContext _context;
+        private readonly RabbitMQSender _rabbitMQSender;
 
-        public DeliveriesController(DeliveryDbContext context)
+
+        public DeliveriesController(DeliveryDbContext context, RabbitMQSender rabbitMQSender)
         {
             _context = context;
+            _rabbitMQSender = rabbitMQSender;
         }
         // GET: api/Deliveries
         [HttpGet]
@@ -118,6 +122,14 @@ namespace DeliveryService.Controllers
                     throw;
                 }
             }
+            var orderUpdate = new OrderUpdate
+            {
+                OrderId = delivery.OrderId,
+                DeliveryStatus = delivery.DeliveryStatus,
+                OrderFulfilled = delivery.OrderFulfilled
+            };
+
+            _rabbitMQSender.SendMessage(orderUpdate, "order.update");
 
             return NoContent();
         }
@@ -145,6 +157,15 @@ namespace DeliveryService.Controllers
 
             _context.Deliveries.Add(delivery);
             await _context.SaveChangesAsync();
+
+            var orderUpdate = new OrderUpdate
+            {
+                OrderId = delivery.OrderId,
+                DeliveryStatus = delivery.DeliveryStatus,
+                OrderFulfilled = delivery.OrderFulfilled
+            };
+
+            _rabbitMQSender.SendMessage(orderUpdate, "order.update");
 
             deliveryDto.DeliveryId = delivery.DeliveryId;
             return CreatedAtAction(nameof(GetDelivery), new { id = delivery.DeliveryId }, deliveryDto);

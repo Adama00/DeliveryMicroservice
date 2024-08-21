@@ -1,4 +1,5 @@
 using BackEnd.Data;
+using BackEnd.RabbitMQ;
 using BackEnd.Service.Interface;
 using BackEnd.Service.Provider;
 using Microsoft.EntityFrameworkCore;
@@ -15,6 +16,9 @@ builder.Services.AddDbContext<DeliveryDbContext>(options =>
                       o => o.UseNetTopologySuite()));
 
 builder.Services.AddAutoMapper(typeof(Program));
+
+// Configure RabbitMQ
+builder.Services.AddSingleton<RabbitMQSender>();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
